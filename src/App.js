@@ -1,6 +1,6 @@
 import "./index.css";
 import React, { useState } from "react";
-import { BsCheckSquareFill } from "react-icons/bs";
+import { BsPatchCheck,BsPatchExclamation } from "react-icons/bs";
 import { AiOutlineUser } from "react-icons/ai";
 
 const cols = [
@@ -28,159 +28,88 @@ const rows = [
   { code: 81 },
   { code: 80 },
 ];
-const targets = [
-  { code: 0 },
-  { code: 1 },
-  { code: 2 },
-  { code: 3 },
-  { code: 4 },
-  { code: 5 },
-  { code: 6 },
-  { code: 7 },
-  { code: 8 },
-  { code: 9 },
-];
 
-function SudokuGrid() {
+export default function App() {
   const [selectedColCell, setSelectedColCell] = useState(null);
   const [selectedRowCell, setSelectedRowCell] = useState(null);
-  const [selectedTarget, setSelectedTarget] = useState(null);
+  const [clickedCells, setClickedCells] = useState([]);
+
+  const handleCellClick = (rowIndex, colIndex) => {
+    const combinedIndex = `${rowIndex}-${colIndex}`;
+    console.log("combinedIndex:", combinedIndex);
+    if (clickedCells.includes(combinedIndex)) {
+      setClickedCells(clickedCells.filter((cell) => cell !== combinedIndex));
+    } else {
+      setClickedCells([...clickedCells, combinedIndex]);
+    }
+  };
 
   const handleColCellClick = (cols, colIndex) => {
     setSelectedColCell(cols);
-    console.log("Column index:", colIndex);
+    console.log("Column index:", colIndex, cols);
   };
 
   const handleRowCellClick = (rows, rowIndex) => {
     setSelectedRowCell(rows);
-    console.log("Row index:", rowIndex);
+    console.log("Row index:", rowIndex, rows);
   };
 
-  const handleTargetClick = (input, targetIndex) => {
-    setSelectedTarget(input.code);
-    console.log("Target index:", targetIndex);
-  };
-
-  
-
-
   return (
-    <div>
-    <div className="max-w-[390px] bg-slate-500 text-center grid grid-cols-11">
-      {cols.map((col, colIndex) => (
-        <div
-          key={colIndex}
-          className={`w-9 h-9 border bg-slate-500 cursor-pointer rounded ${
-            col === selectedColCell ? 'bg-red-600' : ''
-          }`}
-          onClick={() => handleColCellClick(col, colIndex)}
-        >
-          {col.code}
-          <div className="mt-3">
-            {targets.map((input, targetIndex) => (
-              <div
-                key={targetIndex}
-                className={`max-w-[390px] grid grid-cols-9 w-9 h-9 border-t-0 rounded border-l-0 border cursor-pointer ${
-                  targetIndex === selectedTarget ? 'bg-blue-600' : ''
-                }`}
-                onClick={() => handleTargetClick(input, targetIndex)}
-              >
-                {input.code}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-    <div className="max-w-[390px] bg-slate-500 text-center grid grid-rows-11">
-      {rows.map((row, rowIndex) => (
-        <div
-          key={rowIndex}
-          className={`w-9 h-9 border bg-slate-500 cursor-pointer rounded border-r-0 ${
-            row === selectedRowCell ? 'bg-red-600' : ''
-          }`}
-          onClick={() => handleRowCellClick(row, rowIndex)}
-        >
-          {rows.code}
-        </div>
-      ))}
-    </div>
-  </div>
-  
+    <>
+      <div className="max-w-[390px] bg-slate-500 text-center grid grid-cols-11">
+        {cols.map((col, colIndex) => {
+          return (
+            <div
+              key={colIndex}
+              className={`w-9 h-9 border bg-slate-500 cursor-pointer  rounded ${
+                col === selectedColCell ? "bg-red-600" : ""
+              }`}
+              onClick={() => handleColCellClick(col, colIndex)}
+            >
+              {col.code}
+              {colIndex === 0 && (
+                <div className="max-w-[390px] mt-3 bg-slate-500 text-center grid grid-rows-11">
+                  {rows.map((row, rowIndex) =>
+                    rowIndex >= 0 ? (
+                      <div
+                        key={rowIndex}
+                        className={`w-9 h-9 border bg-slate-500 cursor-pointer  rounded border-r-0 ${
+                          row === selectedRowCell ? "bg-red-600" : ""
+                        }`}
+                        onClick={() => handleRowCellClick(row, rowIndex)}
+                      >
+                        {row.code}
+                      </div>
+                    ) : null
+                  )}
+                </div>
+              )}
+              {colIndex > 0 && (
+                <div className="max-w-[390px] mt-3 bg-slate-500  grid grid-rows-11">
+                  {rows.map((row, rowIndex) =>
+                    rowIndex >= 0 ? (
+                      <div
+                        key={rowIndex}
+                        className={`w-9 h-9 border bg-slate-500 cursor-pointer  rounded border-r-0 ${
+                          row === selectedRowCell ? "bg-red-600" : ""
+                        }`}
+                        onClick={() => handleCellClick(rowIndex, colIndex)}
+                      >
+                        {clickedCells.includes(`${rowIndex}-${colIndex}`) && (
+                          <BsPatchCheck className=" m-auto mt-2" />
+                        )}
+                        {/* {clickedCells.includes(`${rowIndex}-${colIndex}`) && (
+                          <BsPatchExclamation className=" m-auto mt-2" />
+                        )} */}
+                      </div>
+                    ) : null
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
-
-export default function App() {
-  return (
-    <div>
-      <SudokuGrid />
-    </div>
-  );
-}
-
-// export default function App() {
-//   const [selectedCell, setSelectedCell] = useState(null);
-//   const [selectedTarget, setSelectedTarget] = useState(null);
-
-//   const handleCellClick = (cols) => {
-//     setSelectedCell(cols);
-//   };
-
-//   const handleTargetClick = (input) => {
-//     setSelectedTarget(input);
-//   };
-
-//   return (
-//     <>
-//       <div className="max-w-[390px]  bg-slate-500 text-center  grid grid-cols-11  ">
-//         {col.map((cols, index) => {
-//           return (
-//             <>
-//               <div
-//                 key={index}
-//                 className={`w-9 h-9 border bg-slate-500 cursor-pointer rounded ${
-//                   cols === selectedCell ? "bg-red-600" : ""
-//                 }`}
-//                 onClick={() => handleCellClick(cols)}
-//               >
-//                 {cols.code}
-//                 <div className="mt-3">
-//                   {target.map((input, index) => {console.log('index', index)
-//                     return (
-//                       <div
-//                         key={index}
-//                         className={` max-w-[390px] grid grid-cols-9 w-9 h-9 border-t-0 rounded border-l-0 border cursor-pointer ${
-//                           input === selectedTarget ? 'bg-green-600' : ""
-//                         }`}
-//                         onClick={() => handleTargetClick(input)}
-//                       >
-//                         {input.code}
-//                       </div>
-//                     );
-//                   })}
-//                 </div>
-//               </div>
-//             </>
-//           );
-//         })}
-//       </div>
-//       <div className="max-w-[390px]  bg-slate-500 text-center  grid grid-rows-11  ">
-//         {row.map((rows, index) => {
-//           return (
-//             <>
-//               <div
-//                 key={index}
-//                 className={`w-9 h-9 border bg-slate-500 cursor-pointer rounded border-r-0 ${
-//                   rows === selectedCell ? "bg-red-600" : ""
-//                 }`}
-//                 onClick={() => handleCellClick(rows)}
-//               >
-//                 {rows.code}
-//               </div>
-//             </>
-//           );
-//         })}
-//       </div>
-//     </>
-//   );
-// }
