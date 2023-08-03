@@ -1,5 +1,5 @@
 import "./index.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineUser } from "react-icons/ai";
 const cols = [
   { code: <AiOutlineUser className="m-auto mt-2" /> },
@@ -31,7 +31,16 @@ export default function App() {
   const [selectedColCell, setSelectedColCell] = useState(null);
   const [selectedRowCell, setSelectedRowCell] = useState(null);
   const [clickedCells, setClickedCells] = useState([]);
-  const [displayedOption, setDisplayedOption] = useState("");
+  const [displayedOption, setDisplayedOption] = useState([]);
+  const [lastClickedCell, setLastClickedCell] = useState(null);
+
+  useEffect(() => {
+    setLastClickedCell(
+      clickedCells.length > 0 ? clickedCells[clickedCells.length - 1] : null
+    );
+  }, [clickedCells]);
+
+  console.log("lastClickedCell:", lastClickedCell);
 
   const handleColCellClick = (cols, colIndex) => {
     setSelectedColCell(cols);
@@ -42,44 +51,22 @@ export default function App() {
     setSelectedRowCell(rows);
     console.log("Row index:", rowIndex, rows);
   };
-  const handleCellClick = (rowIndex, colIndex, selectedOption) => {
-    const combinedIndex = `${rowIndex}-${colIndex}`;
-    console.log("combinedIndex:", combinedIndex, "Selected Option:", selectedOption);
   
-    if (clickedCells.length <= 3) {
-      const existingCell = clickedCells.find(
-        (cell) => cell.combinedIndex === combinedIndex
-      );
-      console.log("existingCell:", existingCell);
-  
-      if (existingCell) {
-        existingCell.selectedOption = selectedOption;
-        setClickedCells([...clickedCells]);
-      } else {
-        setClickedCells([...clickedCells, { combinedIndex, selectedOption }]);
-      }
-  
-      console.log("clickedCells:", clickedCells);
-    } else {
-      clickedCells.shift()
-    }
-  };
-  
-  const Select = ({ onChange }) => {
+  const Select = ({ onChange,value }) => {
     const handleOptionChange = (e) => {
       const selectedOption = e.target.value;
       onChange(selectedOption);
-      console.log("selectedOption:::", selectedOption);
+      console.log("selectedOption:::",   e.target.value);
+      console.log('selectedOption',selectedOption)
     };
-
     return (
       <select
         size="4"
-        className="bg-gray-50 border  border-gray-300 absolute text-[10px] w-14  z-10 text-gray-900 h-30  rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        className="bg-gray-50 border  border-gray-300 absolute text-[10px] w-12  z-10 text-gray-900 h-30  rounded focus:ring-blue-500 focus:border-blue-500 block  "
         onChange={handleOptionChange}
-        value={displayedOption}
+        value={value}
       >
-        <option value="XX">XX</option>
+        <option value="XfX">XX</option>
         <option value="X">X</option>
         <option value="OO">OO</option>
         <option value="O">O</option>
@@ -87,14 +74,46 @@ export default function App() {
     );
   };
 
+  console.log('displayedOption:',displayedOption)
+
+
+  const handleCellClick = (rowIndex, colIndex, selectedOption) => {
+    const combinedIndex = `${rowIndex}-${colIndex}`;
+  
+    console.log("handleCellClick:", selectedOption);
+    console.log(
+      "combinedIndex:",
+      combinedIndex,
+      "Selected Option:",
+      selectedOption
+    );
+  
+    const existingCellIndex = clickedCells.findIndex(
+      (cell) => cell.combinedIndex === combinedIndex
+    );
+  
+    if (existingCellIndex !== -1) {
+      const updatedCells = [...clickedCells];
+    console.log('updatedCells:', updatedCells);
+
+      updatedCells[existingCellIndex].selectedOption = selectedOption;
+      setClickedCells(updatedCells);
+    } else {
+      setClickedCells([...clickedCells, { combinedIndex, selectedOption }]);
+    }
+    console.log("existingCell ", existingCellIndex);
+    console.log('clickedCells:', clickedCells);
+    console.log('combinedIndex:', combinedIndex);
+  };
+  
   const handleDisplayOptionChange = (selectedOption) => {
-    console.log('displayedOption:',displayedOption)
+    console.log("selectedOption:", selectedOption);
     setDisplayedOption(selectedOption);
   };
 
   return (
     <>
-      <div className="my-3 mx-4 relative">
+      <div className="relative mx-4 my-3">
         <div className="max-w-[390px] shadow bg-gray-100  text-center grid grid-cols-11">
           {cols.map((col, colIndex) => {
             return (
@@ -141,7 +160,9 @@ export default function App() {
                             <>
                               {displayedOption}
                               <Select
-                                value={displayedOption}
+                                value={
+                                  lastClickedCell ? lastClickedCell.selectedOption : ""
+                                }
                                 onChange={handleDisplayOptionChange}
                               />
                             </>
@@ -165,3 +186,6 @@ export default function App() {
     </>
   );
 }
+
+
+
