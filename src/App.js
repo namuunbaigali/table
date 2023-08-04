@@ -1,6 +1,7 @@
 import "./index.css";
 import React, { useEffect, useState } from "react";
 import { AiOutlineUser } from "react-icons/ai";
+
 const cols = [
   { code: <AiOutlineUser className="m-auto mt-2" /> },
   { code: 99 },
@@ -14,6 +15,7 @@ const cols = [
   { code: 91 },
   { code: 90 },
 ];
+console.log('first', cols.code)
 const rows = [
   { code: 89 },
   { code: 88 },
@@ -33,6 +35,28 @@ export default function App() {
   const [clickedCells, setClickedCells] = useState([]);
   const [displayedOption, setDisplayedOption] = useState([]);
   const [lastClickedCell, setLastClickedCell] = useState(null);
+  const [lastClickedRow, setLastClickedRow] = useState(null);
+  const [lastClickedCol, setLastClickedCol] = useState(null);
+  
+
+  const countSelectedValues = () => {
+    const columnCounts = Array(cols.length)
+      .fill(0)
+      .map(() => ({ X: 0, O: 0, XX: 0, OO: 0 }));
+    const rowCounts = Array(rows.length)
+      .fill(0)
+      .map(() => ({ X: 0, O: 0, XX: 0, OO: 0 }));
+
+    clickedCells.forEach((cell) => {
+      const [rowIndex, colIndex] = cell.combinedIndex.split("-");
+      const selectedValue = cell.selectedOption;
+
+      columnCounts[colIndex][selectedValue]++;
+      rowCounts[rowIndex][selectedValue]++;
+    });
+
+    return { columnCounts, rowCounts };
+  };
 
   useEffect(() => {
     setLastClickedCell(
@@ -40,33 +64,48 @@ export default function App() {
     );
   }, [clickedCells]);
 
-  console.log("lastClickedCell:", lastClickedCell);
+  const handleColCellClick = (colIndex) => {
+    setSelectedColCell(colIndex);
+    setLastClickedCol(colIndex);
 
-  const handleColCellClick = (cols, colIndex) => {
-    setSelectedColCell(cols);
-    console.log("Column index:", colIndex, cols);
+    console.log("selectedColCell:", selectedColCell);
   };
 
-  const handleRowCellClick = (rows, rowIndex) => {
-    setSelectedRowCell(rows);
-    console.log("Row index:", rowIndex, rows);
+  const handleRowCellClick = (rowIndex) => {
+    setSelectedRowCell(rowIndex);
+    setLastClickedRow(rowIndex);
+    console.log("selectedRowCell:", selectedRowCell);
+    console.log("lastClickedRow:", lastClickedRow);
   };
-  
-  const Select = ({ onChange,value }) => {
+
+  console.log('cdcc', lastClickedCol.code)
+
+  const handleDisplayOptionChange = (selectedOption) => {
+    setDisplayedOption(selectedOption);
+
+    setClickedCells((prevClickedCells) => {
+      const updatedCells = [...prevClickedCells];
+      const lastCellIndex = prevClickedCells.length - 1;
+      if (lastCellIndex >= 0) {
+        updatedCells[lastCellIndex].selectedOption = selectedOption;
+      }
+      return updatedCells;
+    });
+  };
+
+  const Select = ({ onChange, selectedOption }) => {
     const handleOptionChange = (e) => {
       const selectedOption = e.target.value;
       onChange(selectedOption);
-      console.log("selectedOption:::",   e.target.value);
-      console.log('selectedOption',selectedOption)
     };
     return (
       <select
         size="4"
         className="bg-gray-50 border  border-gray-300 absolute text-[10px] w-12  z-10 text-gray-900 h-30  rounded focus:ring-blue-500 focus:border-blue-500 block  "
         onChange={handleOptionChange}
-        value={value}
+        value={selectedOption}
       >
-        <option value="XfX">XX</option>
+        <option value="XX">XX</option>
         <option value="X">X</option>
         <option value="OO">OO</option>
         <option value="O">O</option>
@@ -74,42 +113,27 @@ export default function App() {
     );
   };
 
-  console.log('displayedOption:',displayedOption)
-
-
   const handleCellClick = (rowIndex, colIndex, selectedOption) => {
     const combinedIndex = `${rowIndex}-${colIndex}`;
-  
-    console.log("handleCellClick:", selectedOption);
-    console.log(
-      "combinedIndex:",
-      combinedIndex,
-      "Selected Option:",
-      selectedOption
-    );
-  
     const existingCellIndex = clickedCells.findIndex(
       (cell) => cell.combinedIndex === combinedIndex
     );
-  
-    if (existingCellIndex !== -1) {
-      const updatedCells = [...clickedCells];
-    console.log('updatedCells:', updatedCells);
 
-      updatedCells[existingCellIndex].selectedOption = selectedOption;
-      setClickedCells(updatedCells);
+    if (existingCellIndex !== -1) {
+      setClickedCells((prevClickedCells) => {
+        const updatedCells = [...prevClickedCells];
+        updatedCells[existingCellIndex].selectedOption = selectedOption;
+        return updatedCells;
+      });
     } else {
-      setClickedCells([...clickedCells, { combinedIndex, selectedOption }]);
+      setClickedCells((prevClickedCells) => [
+        ...prevClickedCells,
+        { combinedIndex, selectedOption },
+      ]);
     }
-    console.log("existingCell ", existingCellIndex);
-    console.log('clickedCells:', clickedCells);
-    console.log('combinedIndex:', combinedIndex);
   };
-  
-  const handleDisplayOptionChange = (selectedOption) => {
-    console.log("selectedOption:", selectedOption);
-    setDisplayedOption(selectedOption);
-  };
+ 
+  const { columnCounts, rowCounts } = countSelectedValues();
 
   return (
     <>
@@ -119,10 +143,10 @@ export default function App() {
             return (
               <div
                 key={colIndex}
-                className={`w-9 h-9 border cursor-pointer  rounded ${
+                className={`w-9 h-9 border cursor-pointer rounded ${
                   col === selectedColCell ? "bg-green-400" : ""
                 }`}
-                onClick={() => handleColCellClick(col, colIndex)}
+                onClick={() => handleColCellClick(colIndex)}
               >
                 {col.code}
                 {colIndex === 0 && (
@@ -131,10 +155,10 @@ export default function App() {
                       rowIndex >= 0 ? (
                         <div
                           key={rowIndex}
-                          className={`w-9 h-9 border cursor-pointer  rounded border-r-0 ${
+                          className={`w-9 h-9 border cursor-pointer rounded border-r-0 ${
                             row === selectedRowCell ? "bg-green-400" : ""
                           }`}
-                          onClick={() => handleRowCellClick(row, rowIndex)}
+                          onClick={() => handleRowCellClick(rowIndex)}
                         >
                           {row.code}
                         </div>
@@ -148,25 +172,27 @@ export default function App() {
                       rowIndex >= 0 ? (
                         <div
                           key={rowIndex}
-                          className={`w-9 h-9 border cursor-pointer relative  rounded border-r-0 ${
+                          className={`w-9 h-9 border cursor-pointer relative rounded border-r-0 ${
                             row === selectedRowCell ? "bg-green-200" : ""
                           }`}
                           onClick={() => handleCellClick(rowIndex, colIndex)}
                         >
-                          {clickedCells.some(
-                            (cell) =>
+                          {clickedCells.map((cell, idx) => {
+                            if (
                               cell.combinedIndex === `${rowIndex}-${colIndex}`
-                          ) ? (
-                            <>
-                              {displayedOption}
-                              <Select
-                                value={
-                                  lastClickedCell ? lastClickedCell.selectedOption : ""
-                                }
-                                onChange={handleDisplayOptionChange}
-                              />
-                            </>
-                          ) : null}
+                            ) {
+                              return (
+                                <React.Fragment key={idx}>
+                                  {cell.selectedOption}
+                                  <Select
+                                    onChange={handleDisplayOptionChange}
+                                    selectedOption={cell.selectedOption}
+                                  />
+                                </React.Fragment>
+                              );
+                            }
+                            return null;
+                          })}
                         </div>
                       ) : null
                     )}
@@ -177,15 +203,20 @@ export default function App() {
           })}
         </div>
       </div>
-      <span className="absolute top-[430px] flex m-auto">
-        <h1 className="ml-5">XX - ............ </h1>
-        <h1 className="ml-5">X - ............ </h1>
-        <h1 className="ml-5">OO - ............ </h1>
-        <h1 className="ml-5">O - ............ </h1>
-      </span>
+      <div className="absolute top-[430px]  m-auto">
+        <h1 className="ml-5">{`XX - ${selectedColCell}- ${
+          columnCounts[lastClickedCol]?.code || 0
+        } ${selectedRowCell} - ${rowCounts[lastClickedRow]?.code || 0}`}</h1>
+        <h1 className="ml-5">{`X - ${selectedColCell} - ${
+          columnCounts[lastClickedCol]?.code || 0
+        } ${selectedRowCell}- ${rowCounts[lastClickedRow]?.code || 0}`}</h1>
+        <h1 className="ml-5">{`OO - ${selectedColCell} - ${
+          columnCounts[lastClickedCol]?.code || 0
+        } ${selectedRowCell}- ${rowCounts[lastClickedRow]?.code || 0}`}</h1>
+        <h1 className="ml-5">{`O - ${selectedColCell} - ${
+          columnCounts[lastClickedCol]?.code || 0
+        } ${selectedRowCell}- ${rowCounts[lastClickedRow]?.O || 0}`}</h1>
+      </div>
     </>
   );
 }
-
-
-
