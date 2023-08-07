@@ -1,9 +1,11 @@
 import "./index.css";
 import React, { useEffect, useState } from "react";
-import { AiOutlineUser } from "react-icons/ai";
+import { AiOutlineCheckCircle } from "react-icons/ai";
+import { GoTriangleRight } from "react-icons/go";
 
 const cols = [
-  { code: <AiOutlineUser className="m-auto mt-2" /> },
+  { code: "№" },
+  // { code: <AiOutlineCheckCircle className="m-auto mt-2" /> },
   { code: 99 },
   { code: 98 },
   { code: 97 },
@@ -15,7 +17,6 @@ const cols = [
   { code: 91 },
   { code: 90 },
 ];
-console.log('first', cols.code)
 const rows = [
   { code: 89 },
   { code: 88 },
@@ -29,6 +30,14 @@ const rows = [
   { code: 80 },
 ];
 
+const values = [
+  { label: "XX", countKey: "XX" },
+  { label: "X", countKey: "X" },
+  { label: "OO", countKey: "OO" },
+  { label: "O", countKey: "O" },
+];
+
+
 export default function App() {
   const [selectedColCell, setSelectedColCell] = useState(null);
   const [selectedRowCell, setSelectedRowCell] = useState(null);
@@ -37,7 +46,7 @@ export default function App() {
   const [lastClickedCell, setLastClickedCell] = useState(null);
   const [lastClickedRow, setLastClickedRow] = useState(null);
   const [lastClickedCol, setLastClickedCol] = useState(null);
-  
+  const [clickedCellIndex, setClickedCellIndex] = useState(null);
 
   const countSelectedValues = () => {
     const columnCounts = Array(cols.length)
@@ -50,9 +59,21 @@ export default function App() {
     clickedCells.forEach((cell) => {
       const [rowIndex, colIndex] = cell.combinedIndex.split("-");
       const selectedValue = cell.selectedOption;
+      console.log("selectedValue", selectedValue);
 
-      columnCounts[colIndex][selectedValue]++;
-      rowCounts[rowIndex][selectedValue]++;
+      if (
+        rowIndex >= 0 &&
+        rowIndex < rows.length &&
+        colIndex >= 0 &&
+        colIndex < cols.length
+      ) {
+        if (columnCounts[colIndex][selectedValue] !== colIndex) {
+          columnCounts[colIndex][selectedValue]++;
+        }
+        if (rowCounts[rowIndex][selectedValue] !== rowIndex) {
+          rowCounts[rowIndex][selectedValue]++;
+        }
+      }
     });
 
     return { columnCounts, rowCounts };
@@ -68,17 +89,16 @@ export default function App() {
     setSelectedColCell(colIndex);
     setLastClickedCol(colIndex);
 
-    console.log("selectedColCell:", selectedColCell);
+    console.log(colIndex, "colIndexsssss");
   };
 
   const handleRowCellClick = (rowIndex) => {
     setSelectedRowCell(rowIndex);
     setLastClickedRow(rowIndex);
-    console.log("selectedRowCell:", selectedRowCell);
-    console.log("lastClickedRow:", lastClickedRow);
-  };
+    setLastClickedCol(selectedColCell);
 
-  console.log('cdcc', lastClickedCol.code)
+    console.log(rowIndex, "rowIndexssssssssss");
+  };
 
   const handleDisplayOptionChange = (selectedOption) => {
     setDisplayedOption(selectedOption);
@@ -98,23 +118,32 @@ export default function App() {
       const selectedOption = e.target.value;
       onChange(selectedOption);
     };
+
     return (
-      <select
-        size="4"
-        className="bg-gray-50 border  border-gray-300 absolute text-[10px] w-12  z-10 text-gray-900 h-30  rounded focus:ring-blue-500 focus:border-blue-500 block  "
-        onChange={handleOptionChange}
-        value={selectedOption}
-      >
-        <option value="XX">XX</option>
-        <option value="X">X</option>
-        <option value="OO">OO</option>
-        <option value="O">O</option>
-      </select>
+      <div>
+        <select
+          size="4"
+          className={`bg-gray-50 border border-gray-300 absolute text-[10px] w-12 z-10 text-gray-900 h-30 rounded focus:ring-blue-500 focus:border-blue-500 block ${
+            selectedOption ? "hidden" : ""
+          }`}
+          onChange={handleOptionChange}
+          value={selectedOption}
+          disabled={selectedOption}
+        >
+          <option value="XX">XX</option>
+          <option value="X">X</option>
+          <option value="OO">OO</option>
+          <option value="O">O</option>
+        </select>
+      </div>
     );
   };
 
   const handleCellClick = (rowIndex, colIndex, selectedOption) => {
     const combinedIndex = `${rowIndex}-${colIndex}`;
+
+    setClickedCellIndex(combinedIndex);
+
     const existingCellIndex = clickedCells.findIndex(
       (cell) => cell.combinedIndex === combinedIndex
     );
@@ -132,7 +161,10 @@ export default function App() {
       ]);
     }
   };
- 
+  console.log(clickedCellIndex);
+  console.log(lastClickedCol, "lastClickedCol");
+  console.log(selectedRowCell, "lastClickedRowssssssssss");
+
   const { columnCounts, rowCounts } = countSelectedValues();
 
   return (
@@ -145,7 +177,7 @@ export default function App() {
                 key={colIndex}
                 className={`w-9 h-9 border cursor-pointer rounded ${
                   col === selectedColCell ? "bg-green-400" : ""
-                }`}
+                } ${colIndex === lastClickedCol ? "bg-blue-200" : ""}`}
                 onClick={() => handleColCellClick(colIndex)}
               >
                 {col.code}
@@ -155,8 +187,10 @@ export default function App() {
                       rowIndex >= 0 ? (
                         <div
                           key={rowIndex}
-                          className={`w-9 h-9 border cursor-pointer rounded border-r-0 ${
+                          className={`w-9 h-9 border cursor-pointer rounded ${
                             row === selectedRowCell ? "bg-green-400" : ""
+                          } ${
+                            rowIndex === lastClickedRow ? "bg-blue-200" : ""
                           }`}
                           onClick={() => handleRowCellClick(rowIndex)}
                         >
@@ -174,6 +208,10 @@ export default function App() {
                           key={rowIndex}
                           className={`w-9 h-9 border cursor-pointer relative rounded border-r-0 ${
                             row === selectedRowCell ? "bg-green-200" : ""
+                          } ${
+                            `${rowIndex}-${colIndex}` === clickedCellIndex
+                              ? "bg-gray-300"
+                              : ""
                           }`}
                           onClick={() => handleCellClick(rowIndex, colIndex)}
                         >
@@ -203,19 +241,35 @@ export default function App() {
           })}
         </div>
       </div>
-      <div className="absolute top-[430px]  m-auto">
-        <h1 className="ml-5">{`XX - ${selectedColCell}- ${
-          columnCounts[lastClickedCol]?.code || 0
-        } ${selectedRowCell} - ${rowCounts[lastClickedRow]?.code || 0}`}</h1>
-        <h1 className="ml-5">{`X - ${selectedColCell} - ${
-          columnCounts[lastClickedCol]?.code || 0
-        } ${selectedRowCell}- ${rowCounts[lastClickedRow]?.code || 0}`}</h1>
-        <h1 className="ml-5">{`OO - ${selectedColCell} - ${
-          columnCounts[lastClickedCol]?.code || 0
-        } ${selectedRowCell}- ${rowCounts[lastClickedRow]?.code || 0}`}</h1>
-        <h1 className="ml-5">{`O - ${selectedColCell} - ${
-          columnCounts[lastClickedCol]?.code || 0
-        } ${selectedRowCell}- ${rowCounts[lastClickedRow]?.O || 0}`}</h1>
+      <div className="absolute top-[430px] m-auto flex">
+        <>
+          {values.map((item, index) => (
+          <h1 key={index} className="ml-4  flex  ">
+            <p className="border text-blue-700 rounded-lg p-2">{item.label}</p>
+            <GoTriangleRight className="my-3" />
+            <div className="border rounded-lg  p-2 ">
+              <span className="text-red-600">
+                {cols[lastClickedCol]?.code}
+              </span>
+              {`: `}
+              <span className="column-count">
+                {columnCounts[lastClickedCol]?.[item.countKey] || 0}
+              </span>
+              {` `}
+            </div>
+
+            <div className="border p-2 rounded-lg ">
+              <span className="text-red-600">
+                {rows[selectedRowCell]?.code}
+              </span>
+              {`: `}
+              <span className="row-count">
+                {rowCounts[lastClickedRow]?.[item.countKey] || 0}
+              </span>
+            </div>
+          </h1>
+        ))}
+        </>
       </div>
     </>
   );
