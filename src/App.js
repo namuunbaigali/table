@@ -60,7 +60,6 @@ export default function App() {
     clickedCells.forEach((cell) => {
       const [rowIndex, colIndex] = cell.combinedIndex.split("-");
       const selectedValue = cell.selectedOption;
-      console.log("selectedValue", selectedValue);
 
       if (
         rowIndex >= 0 &&
@@ -90,18 +89,13 @@ export default function App() {
     setSelectedColCell(colIndex);
     setLastClickedCol(colIndex);
 
-    console.log(colIndex, "colIndexsssss");
   };
 
   const handleRowCellClick = (rowIndex) => {
     setSelectedRowCell(rowIndex);
     setLastClickedRow(rowIndex);
     setLastClickedCol(selectedColCell);
-
-    console.log(rowIndex, "rowIndexssssssssss");
   };
-
-  console.log('setDisplayedOption:',displayedOption)
 
   
   const handleDisplayOptionChange = (selectedOption) => {
@@ -171,9 +165,6 @@ export default function App() {
       ]);
     }
   };
-  console.log(clickedCellIndex);
-  console.log(lastClickedCol, "lastClickedCol");
-  console.log(selectedRowCell, "lastClickedRowssssssssss");
 
   const { columnCounts, rowCounts } = countSelectedValues();
 
