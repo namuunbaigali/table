@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.bg-ii {
+    background-color: #3aa0db; 
+  }
+  
+  .bg-i {
+    background-color: #addde9; 
+  }
+  
+  .bg-XX {
+    background-color: #e02727;
+  }
+  
+  .bg-X {
+    background-color: #eb6d6d; 
+  }
+  
+  .bg-OO {
+    background-color: #5fdd4e; 
+  }
+  
+  .bg-O {
+    background-color: #aeda90;
+  }
+  

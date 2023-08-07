@@ -6,37 +6,38 @@ import { GoTriangleRight } from "react-icons/go";
 const cols = [
   { code: "№" },
   // { code: <AiOutlineCheckCircle className="m-auto mt-2" /> },
-  { code: 99 },
-  { code: 98 },
-  { code: 97 },
-  { code: 96 },
-  { code: 95 },
-  { code: 94 },
-  { code: 93 },
-  { code: 92 },
-  { code: 91 },
-  { code: 90 },
+  { code: 1 },
+  { code: 2 },
+  { code: 3 },
+  { code: 4 },
+  { code: 5 },
+  { code: 6 },
+  { code: 7 },
+  { code: 8 },
+  { code: 9 },
+  { code: 10 },{ code: 11 },{ code: 12 },{ code: 13 },{ code: 14 },{ code: 15 },{ code: 16 },{ code: 17 },{ code: 18 },{ code:19  },{ code:20 },
 ];
 const rows = [
-  { code: 89 },
-  { code: 88 },
-  { code: 87 },
-  { code: 86 },
-  { code: 85 },
-  { code: 84 },
-  { code: 83 },
-  { code: 82 },
-  { code: 81 },
-  { code: 80 },
+  { code: 11 },
+  { code: 12 },
+  { code: 13 },
+  { code: 14 },
+  { code: 15 },
+  { code: 16 },
+  { code: 17 },
+  { code: 18 },
+  { code: 19 },
+  { code: 20 },{ code: 21 },{ code: 22 },{ code: 23 },{ code: 24 },{ code: 25 },{ code: 26 },{ code: 27 },{ code: 28 },{ code:29  },{ code:30 },
 ];
 
 const values = [
-  { label: "XX", countKey: "XX" },
-  { label: "X", countKey: "X" },
-  { label: "OO", countKey: "OO" },
-  { label: "O", countKey: "O" },
+  { name: "Харилцан түдгэлзэл тэмдэг", label: "ii", countKey: "ii" },
+  { name: "Дан түдгэлзэл", label: "i", countKey: "i" },
+  { name: "Харилцан татгалзал тэмдэг", label: "XX", countKey: "XX" },
+  { name: "Дан татгалзал", label: "X", countKey: "X" },
+  { name: "Харилцан сонголтын тэмдэг", label: "OO", countKey: "OO" },
+  { name: "Дан сонголт", label: "O", countKey: "O" },
 ];
-
 
 export default function App() {
   const [selectedColCell, setSelectedColCell] = useState(null);
@@ -51,10 +52,10 @@ export default function App() {
   const countSelectedValues = () => {
     const columnCounts = Array(cols.length)
       .fill(0)
-      .map(() => ({ X: 0, O: 0, XX: 0, OO: 0 }));
+      .map(() => ({ X: 0, O: 0, XX: 0, OO: 0,ii:0,i:0 }));
     const rowCounts = Array(rows.length)
       .fill(0)
-      .map(() => ({ X: 0, O: 0, XX: 0, OO: 0 }));
+      .map(() => ({ X: 0, O: 0, XX: 0, OO: 0,ii:0,i:0  }));
 
     clickedCells.forEach((cell) => {
       const [rowIndex, colIndex] = cell.combinedIndex.split("-");
@@ -100,18 +101,24 @@ export default function App() {
     console.log(rowIndex, "rowIndexssssssssss");
   };
 
+  console.log('setDisplayedOption:',displayedOption)
+
+  
   const handleDisplayOptionChange = (selectedOption) => {
     setDisplayedOption(selectedOption);
-
+  
     setClickedCells((prevClickedCells) => {
       const updatedCells = [...prevClickedCells];
       const lastCellIndex = prevClickedCells.length - 1;
       if (lastCellIndex >= 0) {
         updatedCells[lastCellIndex].selectedOption = selectedOption;
+  
+        updatedCells[lastCellIndex].selectedOptionClass = `bg-${selectedOption}`;
       }
       return updatedCells;
     });
   };
+  
 
   const Select = ({ onChange, selectedOption }) => {
     const handleOptionChange = (e) => {
@@ -122,14 +129,17 @@ export default function App() {
     return (
       <div>
         <select
-          size="4"
-          className={`bg-gray-50 border border-gray-300 absolute text-[10px] w-12 z-10 text-gray-900 h-30 rounded focus:ring-blue-500 focus:border-blue-500 block ${
+          size="6"
+          className={`bg-gray-50 border border-gray-300 absolute text-[10px] w-16 z-10 text-center text-gray-900 h-24 rounded focus:ring-blue-500 focus:border-blue-500 block ${
             selectedOption ? "hidden" : ""
           }`}
           onChange={handleOptionChange}
           value={selectedOption}
           disabled={selectedOption}
         >
+          <option value=" " className="bg-gray-200"> </option>
+          <option value="ii">ii</option>
+          <option value="i">i</option>
           <option value="XX">XX</option>
           <option value="X">X</option>
           <option value="OO">OO</option>
@@ -169,106 +179,106 @@ export default function App() {
 
   return (
     <>
-      <div className="relative mx-4 my-3">
-        <div className="max-w-[390px] shadow bg-gray-100  text-center grid grid-cols-11">
-          {cols.map((col, colIndex) => {
-            return (
-              <div
-                key={colIndex}
-                className={`w-9 h-9 border cursor-pointer rounded ${
-                  col === selectedColCell ? "bg-green-400" : ""
-                } ${colIndex === lastClickedCol ? "bg-blue-200" : ""}`}
-                onClick={() => handleColCellClick(colIndex)}
-              >
-                {col.code}
-                {colIndex === 0 && (
-                  <div className="max-w-[390px] bg-gray-100 mt-3 text-center grid grid-rows-11">
-                    {rows.map((row, rowIndex) =>
-                      rowIndex >= 0 ? (
-                        <div
-                          key={rowIndex}
-                          className={`w-9 h-9 border cursor-pointer rounded ${
-                            row === selectedRowCell ? "bg-green-400" : ""
-                          } ${
-                            rowIndex === lastClickedRow ? "bg-blue-200" : ""
-                          }`}
-                          onClick={() => handleRowCellClick(rowIndex)}
-                        >
-                          {row.code}
-                        </div>
-                      ) : null
-                    )}
-                  </div>
-                )}
-                {colIndex > 0 && (
-                  <div className="max-w-[390px] mt-3 shadow  grid grid-rows-11">
-                    {rows.map((row, rowIndex) =>
-                      rowIndex >= 0 ? (
-                        <div
-                          key={rowIndex}
-                          className={`w-9 h-9 border cursor-pointer relative rounded border-r-0 ${
-                            row === selectedRowCell ? "bg-green-200" : ""
-                          } ${
-                            `${rowIndex}-${colIndex}` === clickedCellIndex
-                              ? "bg-gray-300"
-                              : ""
-                          }`}
-                          onClick={() => handleCellClick(rowIndex, colIndex)}
-                        >
-                          {clickedCells.map((cell, idx) => {
-                            if (
-                              cell.combinedIndex === `${rowIndex}-${colIndex}`
-                            ) {
-                              return (
-                                <React.Fragment key={idx}>
-                                  {cell.selectedOption}
-                                  <Select
-                                    onChange={handleDisplayOptionChange}
-                                    selectedOption={cell.selectedOption}
-                                  />
-                                </React.Fragment>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
-                      ) : null
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <div className="relative mx-4 my-3">
+        <table className="max-w-[800px] shadow bg-gray-100 text-center">
+          <thead>
+            <tr>
+              {cols.map((col, colIndex) => (
+                <th
+                  key={colIndex}
+                  className={`w-9 h-9 border cursor-pointer rounded ${
+                    col === selectedColCell ? "bg-green-400" : ""
+                  } ${colIndex === lastClickedCol ? "bg-blue-200" : ""}`}
+                  onClick={() => handleColCellClick(colIndex)}
+                >
+                  {col.code}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {cols.map((col, colIndex) => {
+                  if (colIndex === 0) {
+                    return (
+                      <td
+                        key={colIndex}
+                        className={`w-9 h-9 border cursor-pointer rounded ${
+                          row === selectedRowCell ? "bg-green-400" : ""
+                        } ${rowIndex === lastClickedRow ? "bg-blue-200" : ""}`}
+                        onClick={() => handleRowCellClick(rowIndex)}
+                      >
+                        {row.code}
+                      </td>
+                    );
+                  } else {
+                    return (
+                      <td
+                      key={colIndex}
+                      className={`w-9 h-9 border cursor-pointer relative rounded border-r-0 ${
+                        row === selectedRowCell ? "bg-green-200" : ""
+                      } ${`${rowIndex}-${colIndex}` === clickedCellIndex ? "bg-gray-300" : ""} ${
+                        clickedCells.find((cell) => cell.combinedIndex === `${rowIndex}-${colIndex}`)
+                          ?.selectedOptionClass || ""
+                      }`}
+                      onClick={() => handleCellClick(rowIndex, colIndex)}
+                    >
+                      {clickedCells.map((cell, idx) => {
+                        if (cell.combinedIndex === `${rowIndex}-${colIndex}`) {
+                          return (
+                            <React.Fragment key={idx}>
+                              {cell.selectedOption}
+                              <Select
+                                onChange={handleDisplayOptionChange}
+                                selectedOption={cell.selectedOption}
+                              />
+                            </React.Fragment>
+                          );
+                        }
+                        return null;
+                      })}
+                    </td>
+                    );
+                  }
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <div className="absolute top-[430px] m-auto flex">
+      <div className="absolute top-[780px] m-auto ">
         <>
           {values.map((item, index) => (
-          <h1 key={index} className="ml-4  flex  ">
-            <p className="border text-blue-700 rounded-lg p-2">{item.label}</p>
-            <GoTriangleRight className="my-3" />
-            <div className="border rounded-lg  p-2 ">
-              <span className="text-red-600">
-                {cols[lastClickedCol]?.code}
-              </span>
-              {`: `}
-              <span className="column-count">
-                {columnCounts[lastClickedCol]?.[item.countKey] || 0}
-              </span>
-              {` `}
-            </div>
+            <h1 key={index} className="ml-4  flex my-3 ">
+              <p className="border text-gray-900 rounded-lg p-2 flex">
+                {item.name}
+                {"   "}
+                <p className="text-red-600 pl-3">{item.label}</p>
+              </p>
+              <GoTriangleRight className="my-3" />
+              <div className="border rounded-lg  p-2 ">
+                <span className="text-red-600">
+                  {cols[lastClickedCol]?.code}
+                </span>
+                {`: `}
+                <span className="column-count">
+                  {columnCounts[lastClickedCol]?.[item.countKey] || 0}
+                </span>
+                {` `}
+              </div>
 
-            <div className="border p-2 rounded-lg ">
-              <span className="text-red-600">
-                {rows[selectedRowCell]?.code}
-              </span>
-              {`: `}
-              <span className="row-count">
-                {rowCounts[lastClickedRow]?.[item.countKey] || 0}
-              </span>
-            </div>
-          </h1>
-        ))}
+              <div className="border p-2 rounded-lg ">
+                <span className="text-red-600">
+                  {rows[selectedRowCell]?.code}
+                </span>
+                {`: `}
+                <span className="row-count">
+                  {rowCounts[lastClickedRow]?.[item.countKey] || 0}
+                </span>
+              </div>
+            </h1>
+          ))}
         </>
       </div>
     </>
